@@ -1,15 +1,12 @@
----
-title: "RepData_PeerAssessment1"
-output: 
-  html_document: 
-    keep_md: yes
----
+# RepData_PeerAssessment1
 ##Loading and preprocessing the data
-```{r warning=FALSE, message=FALSE}
+
+```r
 library(data.table)
 library(dplyr)
 ```
-```{r}
+
+```r
 activity<-read.csv("activity.csv")
 activity<-tbl_df(activity)
 sumstep<-activity %>%
@@ -21,25 +18,41 @@ sumstep<-activity %>%
 ##What is mean total number of steps taken per day?
 * Histogram of total number of steps per day
 
-```{r}
+
+```r
 hist(sumstep$steps, main="Histogram of total number of steps per day",
      xlab="Number of steps per day")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 * Mean and meadian of total number of steps per day
 
 
-```{r}
+
+```r
 mean(sumstep$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(sumstep$steps)
 ```
-* The mean of total steps taken per day `r mean(sumstep$steps)` steps.
 
-* The median of total steps taken per day `r median(sumstep$steps)` steps.
+```
+## [1] 10765
+```
+* The mean of total steps taken per day 1.0766189\times 10^{4} steps.
+
+* The median of total steps taken per day 10765 steps.
 
 ##What is the average daily activity pattern?
 
-```{r}
+
+```r
 avstep<-activity %>%
         filter(!is.na(steps)) %>%
         group_by(interval) %>%
@@ -48,26 +61,38 @@ with(avstep, plot(interval, steps, main="Average number of steps per interval",
                   xlab="Interval", ylab="Steps", type="l"))
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
-*The maximum number of steps contained in `r maxstep<-avstep %>% filter(steps>=max(avstep$steps))
-maxstep$interval` interval.
 
-``` {r}
+*The maximum number of steps contained in 835 interval.
+
+
+```r
 maxstep<-avstep %>% filter(steps>=max(avstep$steps))
 maxstep$interval
 ```
 
+```
+## [1] 835
+```
+
 ##Imputing missing values
 
-* Total number of missing values in dataset is `r sum(is.na(activity$steps))`
+* Total number of missing values in dataset is 2304
 
-```{r}
+
+```r
  sum(is.na(activity$steps))
+```
+
+```
+## [1] 2304
 ```
 
 * Replacing missing value with mean for 5 minute interval
 
-```{r, results='hide'}
+
+```r
 activityNew<-activity
 for(i in 1:nrow(activity)) {
    if (is.na(activity$steps[i])){
@@ -84,31 +109,47 @@ sumstepNew<-activityNew %>%
 
 * Updated histogram with imputed NA's
 
-```{r}
+
+```r
 hist(sumstepNew$steps, main="Histogram of total number of steps per day",
      xlab="Number of steps per day")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
 * Updated mean and meadian of total number of steps per day
 
 
-```{r}
+
+```r
 mean(sumstepNew$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(sumstepNew$steps)
 ```
-* The mean of total steps taken per day `r mean(sumstepNew$steps)` steps.
 
-* The median of total steps taken per day `r median(sumstepNew$steps)` steps.
+```
+## [1] 10766.19
+```
+* The mean of total steps taken per day 1.0766189\times 10^{4} steps.
 
-*The new mean is `r if(mean(sumstepNew$steps)>mean(sumstep$steps)) {"higher"} else if(mean(sumstepNew$steps)<mean(sumstep$steps)) {"lower"} else {"same as"}` the old one
+* The median of total steps taken per day 1.0766189\times 10^{4} steps.
 
-*The new median is `r if(median(sumstepNew$steps)>median(sumstep$steps)) {"higher"} else if(median(sumstepNew$steps)<median(sumstep$steps)) {"lower"} else {"same as"}` the old one.
+*The new mean is same as the old one
+
+*The new median is higher the old one.
 
 ##Are there differences in activity patterns between weekdays and weekends?
 
 * Added additional variable weekday
 
-```{r results='hide'}
+
+```r
 weekstep<-activityNew %>% 
   mutate(weekday=if_else(wday(date)>1 & wday(date)<7, "weekday", "weekend")) %>%
   group_by(weekday, interval) %>%
@@ -117,9 +158,11 @@ weekstep<-activityNew %>%
 
 * Graph of average steps per interval on weekends and weekdays
 
-```{r}
+
+```r
 par(mfrow=c(1,2))
 with(subset(weekstep, weekday=="weekday"), plot(interval, steps, type="l", main="Weekdays", xlab="Intevals", ylab="Steps"))
 with(subset(weekstep, weekday=="weekend"), plot(interval, steps, type="l", main="Weekends", xlab="Intevals", ylab="Steps"))
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
